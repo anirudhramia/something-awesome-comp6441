@@ -1,5 +1,5 @@
 from enigma import EnigmaMachine
 
-test = EnigmaMachine()
+enigma = EnigmaMachine()
 
-test.start()
+enigma.start()

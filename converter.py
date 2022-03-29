@@ -1,13 +1,13 @@
-original = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-converted = 'NZJHGRCXMYSWBOUFAIVLPEKQDT'
+convert_string = 'RDOBJNTKVEHMLFCWZAXGYIPSUQ'
 
-
+# Converts the given string of characters into a wiring dictionary that I can use in the rotor and reflector class.
+# Purely wrote this so I didnt have to manually type out all the connections
 print('{', end='')
-for i in range(len(original)):
+for i in range(len(convert_string)):
   print(i,end='')
   print(':',end='')
-  print(ord(converted[i].lower())-97, end='')
-  if(i != len(converted)-1):
+  print(ord(convert_string[i].lower())-97, end='')
+  if(i != len(convert_string)-1):
     print(', ',end='')
 
 print('}',end='')

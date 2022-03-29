@@ -2,16 +2,18 @@ from rotor import Rotor
 from reflector import Reflector
 
 class EnigmaMachine:
-  def __init__(self):
+  def __init__(self, num_rotors, plugboard):
     self.rotor1 = Rotor(0, 5, 1)
     self.rotor2 = Rotor(0, 2, 1)
     self.rotor3 = Rotor(0, 3, 1)
     self.rotor4 = Rotor(0, 4, 1)
-    self.reflector = Reflector()
+    # self.rotors = []
+    # self.setup_rotors(num_rotors)
+    self.reflector = Reflector(0)
 
   def start(self):
     loop = True
-    print(chr(self.rotor1.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor3.get_position()+96))
+    print(chr(self.rotor1.get_current_letter()+97)+ " " + chr(self.rotor2.get_current_letter()+97) + " " + chr(self.rotor3.get_current_letter()+97))
     while loop is True:
       letter = input(">>> ")
       letter = ord(letter)-97
@@ -27,8 +29,10 @@ class EnigmaMachine:
       
       print(chr(letter+97))
       self.rotate_rotors()
-      print(chr(self.rotor1.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor3.get_position()+96))
+      print(chr(self.rotor1.get_current_letter()+97) + " " + chr(self.rotor2.get_current_letter()+97) + " " + chr(self.rotor3.get_current_letter()+97))
 
+  # def setup_rotors(self, num_rotors):
+  #   ids=[]
 
   def rotate_rotors(self):
     self.rotor1.rotate()
