@@ -29,6 +29,6 @@ from enigma import EnigmaMachine
 
 # Input is Reflector, followed by array of Rotors in reverse order
 enigma = EnigmaMachine(0, [16, 3, 2, 1],False)
-#                      R,   4, 3, 2, 1
+#                      Ref, 4, 3, 2, 1
 
 enigma.start()

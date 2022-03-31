@@ -17,37 +17,39 @@ class EnigmaMachine:
 
   def start(self):
     loop = True
-    print(chr(self.rotor3.get_position()+96)+ " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
+    #print(chr(self.rotor3.get_position()+96)+ " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
     while loop is True:
       letter = input(">>> ")
       letter = ord(letter)-97
       #print(chr(letter+97))
-      self.rotate_rotors()
+      
+      print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
       if (self.plugboard != None):
         letter = self.plugboard.passthrough(letter)
       letter = self.rotor1.passthrough(letter, True)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.rotor2.passthrough(letter, True)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.rotor3.passthrough(letter, True)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.rotor4.passthrough(letter, True)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.reflector.passthrough(letter)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.rotor4.passthrough(letter, False)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.rotor3.passthrough(letter, False)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.rotor2.passthrough(letter, False)
-      #print(chr(letter+97))
+      print(chr(letter+97))
       letter = self.rotor1.passthrough(letter, False)
+      print(chr(letter+97))
       if (self.plugboard != None):
         letter = self.plugboard.passthrough(letter)
       print()
       print(chr(letter+97))
+      self.rotate_rotors()
       
-      print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
 
   def rotate_rotors(self):
     self.rotor1.rotate()
