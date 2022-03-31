@@ -7,11 +7,13 @@ class EnigmaMachine:
     self.rotor2 = Rotor(2, rotor_nums[2], 1) # Middle
     self.rotor3 = Rotor(3, rotor_nums[1], 1) # Slow Position
     self.rotor4 = Rotor(4, rotor_nums[0], 1)
+    #self.rotor1.set_alphabet_ring(1)
     self.rotated = [False, False, False]
+
     self.reflector = Reflector(reflector_num)
     if(plugboard == True):
       self.plugboard = Plugboard()
-      self.plugboard.add_connection(0,1)
+      #self.plugboard.add_connection(0,1)
     else:
       self.plugboard = None
     

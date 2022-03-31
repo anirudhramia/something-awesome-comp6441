@@ -34,7 +34,7 @@ from enigma import EnigmaMachine
 # Caesar: 1 (C Thin)
 
 # Input is Reflector, followed by array of Rotors in reverse order
-enigma = EnigmaMachine(0, [16, 3, 2, 1],True)
+enigma = EnigmaMachine(1, [17, 3, 2, 1],True)
 #                      Ref, 4, 3, 2, 1
 
 enigma.start()
