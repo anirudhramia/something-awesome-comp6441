@@ -53,9 +53,18 @@ class Rotor:
   def set_alphabet_ring(self, new_ring_position):
     if(new_ring_position >= 0 and new_ring_position < 26):
       for wire in self.connections:
-        wire[0] = wire[0]+new_ring_position
+        wire[0] = wire[0]+1
         if(wire[0] > 25):
-          wire[0] = wire[0]-26
+          wire[0]=wire[0]-26
+        wire[1] = wire[1]+new_ring_position
+        if(wire[1] > 25):
+          wire[1] = wire[1]-26
+    first = self.connections[0][0]
+    while first != self.position-1:
+      temp = self.connections.pop(0)
+      self.connections.append(temp)
+      first = self.connections[0][0]
+    print(self.connections)
 
   def get_current_letter(self):
     return self.connections[0][0]
