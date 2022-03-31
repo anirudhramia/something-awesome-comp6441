@@ -1,26 +1,19 @@
-from msilib import knownbits
-from platform import machine
 from rotor import Rotor
 from reflector import Reflector
-
-# Rotor Options:
-# Rotors I, II, III, IV, V, VI, VII and VIII are represented by their respective numerical value.
-# The Beta Rotor and the Gamma Rotor, which were made specifically for use as the fourth rotor in 
-# the M4 Enigma machine are represented by 16 and 17 respectively. These rotors do not turn.
-
-# Reflector Options:
-# The M4 had two reflector options: Reflector B Thin and Reflector C Thin. They were also known
-# as Bruno and Caesar respectively. Bruno is 0 and Caesar is 1.
-
-
+from plugboard import Plugboard
 class EnigmaMachine:
-  def __init__(self, plugboard):
-    self.rotor1 = Rotor(1, 3, 1)
-    self.rotor2 = Rotor(2, 2, 1)
-    self.rotor3 = Rotor(3, 1, 1)
-    self.rotor4 = Rotor(4, 16, 1)
+  def __init__(self, reflector_num, rotor_nums,  plugboard):
+    self.rotor1 = Rotor(1, rotor_nums[3], 1) # Fast position: Rotates every keystroke
+    self.rotor2 = Rotor(2, rotor_nums[2], 1) # Middle
+    self.rotor3 = Rotor(3, rotor_nums[1], 1) # Slow Position
+    self.rotor4 = Rotor(4, rotor_nums[0], 1)
     self.rotated = [False, False, False]
-    self.reflector = Reflector(0)
+    self.reflector = Reflector(reflector_num)
+    if(plugboard == True):
+      self.plugboard = Plugboard()
+    else:
+      self.plugboard = None
+    
 
   def start(self):
     loop = True
@@ -28,22 +21,36 @@ class EnigmaMachine:
     while loop is True:
       letter = input(">>> ")
       letter = ord(letter)-97
-      letter = self.rotor1.passthrough(letter, True)
-      letter = self.rotor2.passthrough(letter, True)
-      letter = self.rotor3.passthrough(letter, True)
-      letter = self.rotor4.passthrough(letter, True)
-      letter = self.reflector.passthrough(letter)
-      letter = self.rotor4.passthrough(letter, False)
-      letter = self.rotor3.passthrough(letter, False)
-      letter = self.rotor2.passthrough(letter, False)
-      letter = self.rotor1.passthrough(letter, False)
-      
-      print(chr(letter+97))
+      #print(chr(letter+97))
       self.rotate_rotors()
+      if (self.plugboard != None):
+        letter = self.plugboard.passthrough(letter)
+      letter = self.rotor1.passthrough(letter, True)
+      #print(chr(letter+97))
+      letter = self.rotor2.passthrough(letter, True)
+      #print(chr(letter+97))
+      letter = self.rotor3.passthrough(letter, True)
+      #print(chr(letter+97))
+      letter = self.rotor4.passthrough(letter, True)
+      #print(chr(letter+97))
+      letter = self.reflector.passthrough(letter)
+      #print(chr(letter+97))
+      letter = self.rotor4.passthrough(letter, False)
+      #print(chr(letter+97))
+      letter = self.rotor3.passthrough(letter, False)
+      #print(chr(letter+97))
+      letter = self.rotor2.passthrough(letter, False)
+      #print(chr(letter+97))
+      letter = self.rotor1.passthrough(letter, False)
+      if (self.plugboard != None):
+        letter = self.plugboard.passthrough(letter)
+      print()
+      print(chr(letter+97))
+      
       print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
 
   def rotate_rotors(self):
-    self.rotor1.rotate() #Fast rotor: Meaning it turns every keystroke
+    self.rotor1.rotate()
     self.rotated[0] = True
 
     if(self.rotor2.get_notch_engaged() == True):
@@ -63,8 +70,10 @@ class EnigmaMachine:
         self.rotated[1] = True
 
     if (self.rotor1.get_position() == self.rotor1.get_notch_position()):
+      self.rotor1.change_notch()
       self.rotor2.set_notch_engaged(True)
     if (self.rotor2.get_position() == self.rotor2.get_notch_position()):
+      self.rotor2.change_notch()
       self.rotor3.set_notch_engaged(True)
 
     self.rotated = [False, False, False]
