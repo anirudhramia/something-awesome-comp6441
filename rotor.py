@@ -13,54 +13,29 @@ class Rotor:
 
 
   def passthrough(self, letter, forward):
-    if(self.position == 1):
-      if(forward):
-        return_value = self.connections[letter][1]
-      else:
-        #print(letter)
-        for item in self.connections:
-          if (item[1] == letter):
-            converted_letter = item[0]
-            break
-        return_value = converted_letter
+    if (forward):
+      compare_letter = self.connections[letter][1]
+      index = 0
+      for item in self.connections:
+        if(item[0] == compare_letter):
+          converted_letter = index
+          break
+        index = index + 1
+      return_value = converted_letter
     else:
-      if (forward):
-        compare_letter = self.connections[letter][1]
-        index = 0
-        for item in self.connections:
-          if(item[0] == compare_letter):
-            converted_letter = index
-            break
-          index = index + 1
-        return_value = converted_letter
-      else:
-        print(letter)
-        # for item in self.connections:
-        #   if (item[1] == letter):
-        #     compare_letter = item[0]
-        #     break
-        compare_letter = self.connections[letter][0]
+      compare_letter = self.connections[letter][0]
+      index = 0
+      for item in self.connections:
+        if(item[1] == compare_letter):
+          converted_letter = index
+          break
+        index = index + 1
 
-        index = 0
-
-        for item in self.connections:
-          if(item[1] == compare_letter):
-            converted_letter = index
-            break
-          index = index + 1
-
-        return_value = converted_letter
+      return_value = converted_letter
 
     return return_value
 
-
-# Method used found from: https://stackoverflow.com/questions/58366635/rotate-values-of-a-dictionary
   def rotate(self):
-    # print(self.connections)
-    # keys_list = list(self.connections.keys())
-    # values_list = list(self.connections.values())
-    # values_list.insert(0, values_list.pop())
-    # self.connections = dict(zip(keys_list, values_list))
     temp = self.connections.pop(0)
     self.connections.append(temp)
     self.position = self.position + 1
@@ -117,27 +92,32 @@ class Rotor:
 
     elif (rotor_number == 4):
       self.rotor_type = "IV"
-      self.connections = [4, 18, 14, 21, 15, 25, 9, 0, 24, 16, 20, 8, 17, 7, 23, 11, 13, 5, 19, 6, 10, 3, 2, 12, 22, 1]
+      self.connections = [(0,4), (1,18), (2,14), (3,21), (4,15), (5,25), (6,9), (7,0), (8,24), (9,16), (10,20), (11,8), (12,17),
+       (13,7), (14,23), (15,11), (16,13), (17,5), (18,19), (19,6), (20,10), (21,3), (22,2), (23,12), (24,22), (25,1)]
       self.notch_position = [10,10]
 
     elif (rotor_number == 5):
       self.rotor_type = "V"
-      self.connections = [21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10]
+      self.connections = [(0,21), (1,25), (2,1), (3,17), (4,6), (5,8), (6,19), (7,24), (8,20), (9,15), (10,18), (11,3), (12,13), 
+      (13,7), (14,11), (15,23), (16,0), (17,22), (18,12), (19,9), (20,16), (21,14), (22,5), (23,4), (24,2), (25,10)]
       self.notch_position = [26,26]
 
     elif (rotor_number == 6):
       self.rotor_type = "VI"
-      self.connections = [9, 15, 6, 21, 14, 20, 12, 5, 24, 16, 1, 4, 13, 7, 25, 17, 3, 10, 0, 18, 23, 11, 8, 2, 19, 22]
+      self.connections = [(0,9), (1,15), (2,6), (3,21), (4,14), (5,20), (6,12), (7,5), (8,24), (9,16), (10,1), (11,4), (12,13), 
+      (13,7), (14,25), (15,17), (16,3), (17,10), (18,0), (19,18), (20,23), (21,11), (22,8), (23,2), (24,19), (25,22)]
       self.notch_position = [13,26]
 
     elif (rotor_number == 7):
       self.rotor_type = "VII"
-      self.connections = [13, 25, 9, 7, 6, 17, 2, 23, 12, 24, 18, 22, 1, 14, 20, 5, 0, 8, 21, 11, 15, 4, 10, 16, 3, 19]
+      self.connections = [(0,13), (1,25), (2,9), (3,7), (4,6), (5,17), (6,2), (7,23), (8,12), (9,24), (10,18), (11,22), (12,1), 
+      (13,14), (14,20), (15,5), (16,0), (17,8), (18,21), (19,11), (20,15), (21,4), (22,10), (23,16), (24,3), (25,19)]
       self.notch_position = [13,26]
 
     elif (rotor_number == 8):
       self.rotor_type = "VIII"
-      self.connections = [5, 10, 16, 7, 19, 11, 23, 14, 2, 1, 9, 18, 15, 3, 25, 17, 0, 12, 4, 22, 13, 8, 20, 24, 6, 21]
+      self.connections = [(0,5), (1,10), (2,16), (3,7), (4,19), (5,11), (6,23), (7,14), (8,2), (9,1), (10,9), (11,18), (12,15), 
+      (13,3), (14,25), (15,17), (16,0), (17,12), (18,4), (19,22), (20,13), (21,8), (22,20), (23,24), (24,6), (25,21)]
       self.notch_position = [13,26]
 
     elif(rotor_number == 16): # Beta Rotor (Used specifically in M4 Engima and did not rotate)

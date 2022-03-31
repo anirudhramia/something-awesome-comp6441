@@ -9,6 +9,12 @@ from enigma import EnigmaMachine
 # The M4 had two reflector options: Reflector B Thin and Reflector C Thin. They were also known
 # as Bruno and Caesar respectively. Bruno is 0 and Caesar is 1.
 
+# Online Simulator to test correct output
+# http://people.physik.hu-berlin.de/~palloks/js/enigma/enigma-u_v26_en.html 
+# OR
+# https://cryptii.com/pipes/enigma-machine
+# (Remember to select M4 "Shark")
+
 # Rotors
 # I: 1
 # II: 2
@@ -28,7 +34,7 @@ from enigma import EnigmaMachine
 # Caesar: 1 (C Thin)
 
 # Input is Reflector, followed by array of Rotors in reverse order
-enigma = EnigmaMachine(0, [16, 3, 2, 1],False)
+enigma = EnigmaMachine(0, [16, 3, 2, 1],True)
 #                      Ref, 4, 3, 2, 1
 
 enigma.start()

@@ -11,6 +11,7 @@ class EnigmaMachine:
     self.reflector = Reflector(reflector_num)
     if(plugboard == True):
       self.plugboard = Plugboard()
+      self.plugboard.add_connection(0,1)
     else:
       self.plugboard = None
     
@@ -21,34 +22,26 @@ class EnigmaMachine:
     while loop is True:
       letter = input(">>> ")
       letter = ord(letter)-97
-      #print(chr(letter+97))
       
       print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
+      self.rotate_rotors()
       if (self.plugboard != None):
         letter = self.plugboard.passthrough(letter)
       letter = self.rotor1.passthrough(letter, True)
-      print(chr(letter+97))
       letter = self.rotor2.passthrough(letter, True)
-      print(chr(letter+97))
       letter = self.rotor3.passthrough(letter, True)
-      print(chr(letter+97))
       letter = self.rotor4.passthrough(letter, True)
-      print(chr(letter+97))
       letter = self.reflector.passthrough(letter)
-      print(chr(letter+97))
       letter = self.rotor4.passthrough(letter, False)
-      print(chr(letter+97))
       letter = self.rotor3.passthrough(letter, False)
-      print(chr(letter+97))
       letter = self.rotor2.passthrough(letter, False)
-      print(chr(letter+97))
       letter = self.rotor1.passthrough(letter, False)
-      print(chr(letter+97))
+
       if (self.plugboard != None):
         letter = self.plugboard.passthrough(letter)
       print()
       print(chr(letter+97))
-      self.rotate_rotors()
+      
       
 
   def rotate_rotors(self):

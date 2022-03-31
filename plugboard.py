@@ -4,7 +4,7 @@ class Plugboard:
       (13,13), (14,14), (15,15), (16,16), (17,17), (18,18), (19,19), (20,20), (21,21), (22,22), (23,16), (24,24), (25,25)]
 
   def passthrough(self, letter):
-    converted_letter = self.connections[letter]
+    converted_letter = self.connections[letter][1]
     return_value = converted_letter
     return return_value
   

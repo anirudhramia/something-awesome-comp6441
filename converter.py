@@ -1,4 +1,4 @@
-convert_string = 'FSOKANUERHMBTIYCWLQPZXVGJD'
+convert_string = 'FKQHTLXOCBJSPDZRAMEWNIUYGV'
 
 # Converts the given string of characters into a wiring dictionary that I can use in the rotor and reflector class.
 # Purely wrote this so I didnt have to manually type out all the connections
