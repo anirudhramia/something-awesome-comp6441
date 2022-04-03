@@ -1,13 +1,12 @@
 from collections import deque
 
 class Rotor:
-  def __init__(self, rotor_position, rotor_number, position):
-    self.rotor_position_in_machine = rotor_position
+  def __init__(self, rotor_number, position):
     self.position = position
     self.notch_position = [26,26]
     self.notch_number = 0 # Used for rotors VI, VII and VIII which have two notches
     self.notch_engaged = False
-    self.connections = {}
+    self.connections = []
     self.rotor_type = ""
     self.configure_rotor(rotor_number) # Configure the input/output connections and turnover point for the rotor based on rotor number
 
@@ -64,7 +63,6 @@ class Rotor:
       temp = self.connections.pop(0)
       self.connections.append(temp)
       first = self.connections[0][0]
-    print(self.connections)
 
   def get_current_letter(self):
     return self.connections[0][0]

@@ -1,31 +1,27 @@
 from rotor import Rotor
+from config import Config
 from reflector import Reflector
 from plugboard import Plugboard
 class EnigmaMachine:
-  def __init__(self, reflector_num, rotor_nums,  plugboard):
-    self.rotor1 = Rotor(1, rotor_nums[3], 1) # Fast position: Rotates every keystroke
-    self.rotor2 = Rotor(2, rotor_nums[2], 1) # Middle
-    self.rotor3 = Rotor(3, rotor_nums[1], 1) # Slow Position
-    self.rotor4 = Rotor(4, rotor_nums[0], 1)
+  def __init__(self, config):
+    self.rotor1 = Rotor(config.rotor1_number, config.rotor1_position) # Fast position: Rotates every keystroke
+    self.rotor2 = Rotor(config.rotor2_number, config.rotor2_position) # Middle
+    self.rotor3 = Rotor(config.rotor3_number, config.rotor3_position) # Slow Position
+    self.rotor4 = Rotor(config.rotor4_number, config.rotor4_position)
 
     self.rotated = [False, False, False]
 
-    self.reflector = Reflector(reflector_num)
-    if(plugboard == True):
-      self.plugboard = Plugboard()
-      #self.plugboard.add_connection(0,1)
-    else:
-      self.plugboard = None
-    
+    self.reflector = Reflector(config.reflector)
+    self.plugboard = Plugboard(config.plugboard)
+    self.original_config = config
 
   def enter_key(self, letter):
     #print(chr(self.rotor3.get_position()+96)+ " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
     letter = ord(letter)-97
     
-    print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
+    #print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
     self.rotate_rotors()
-    if (self.plugboard != None):
-      letter = self.plugboard.passthrough(letter)
+    letter = self.plugboard.passthrough(letter)
     letter = self.rotor1.passthrough(letter, True)
     letter = self.rotor2.passthrough(letter, True)
     letter = self.rotor3.passthrough(letter, True)
@@ -35,11 +31,8 @@ class EnigmaMachine:
     letter = self.rotor3.passthrough(letter, False)
     letter = self.rotor2.passthrough(letter, False)
     letter = self.rotor1.passthrough(letter, False)
-
-    if (self.plugboard != None):
-      letter = self.plugboard.passthrough(letter)
-    print()
-    print(chr(letter+97))
+    letter = self.plugboard.passthrough(letter)
+    return letter
 
   def rotate_rotors(self):
     self.rotor1.rotate()
@@ -70,8 +63,33 @@ class EnigmaMachine:
 
     self.rotated = [False, False, False]
 
-    
     # In the M4 Enigma machine, the 4th rotor does not rotate along with the reflector. Hence no logic to rotate it
 
+  def get_visible_letters(self):
+    letters = []
+    letters.append(self.rotor4.get_current_letter()+97)
+    letters.append(self.rotor3.get_current_letter()+97)
+    letters.append(self.rotor2.get_current_letter()+97)
+    letters.append(self.rotor1.get_current_letter()+97)
+    return letters
+
+  def reset(self):
+    self.rotor1.set_position(self.original_config.rotor1_position)
+    self.rotor1.set_alphabet_ring(self.original_config.rotor1_ring_setting)
+
+    self.rotor2.set_position(self.original_config.rotor2_position)
+    self.rotor2.set_alphabet_ring(self.original_config.rotor2_ring_setting)
+
+    self.rotor3.set_position(self.original_config.rotor3_position)
+    self.rotor3.set_alphabet_ring(self.original_config.rotor3_ring_setting)
+
+    self.rotor4.set_position(self.original_config.rotor4_position)
+    self.rotor4.set_alphabet_ring(self.original_config.rotor4_ring_setting)
+
+    self.plugboard.reset(self.original_config.plugboard)
+
+
+  def new_config(self, config):
+    self.original_config = config
 
 
