@@ -7,8 +7,7 @@ class EnigmaMachine:
     self.rotor2 = Rotor(2, rotor_nums[2], 1) # Middle
     self.rotor3 = Rotor(3, rotor_nums[1], 1) # Slow Position
     self.rotor4 = Rotor(4, rotor_nums[0], 1)
-    self.rotor1.set_alphabet_ring(1)
-    self.rotor3.set_position(8)
+
     self.rotated = [False, False, False]
 
     self.reflector = Reflector(reflector_num)
@@ -19,33 +18,28 @@ class EnigmaMachine:
       self.plugboard = None
     
 
-  def start(self):
-    loop = True
+  def enter_key(self, letter):
     #print(chr(self.rotor3.get_position()+96)+ " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
-    while loop is True:
-      letter = input(">>> ")
-      letter = ord(letter)-97
-      
-      print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
-      self.rotate_rotors()
-      if (self.plugboard != None):
-        letter = self.plugboard.passthrough(letter)
-      letter = self.rotor1.passthrough(letter, True)
-      letter = self.rotor2.passthrough(letter, True)
-      letter = self.rotor3.passthrough(letter, True)
-      letter = self.rotor4.passthrough(letter, True)
-      letter = self.reflector.passthrough(letter)
-      letter = self.rotor4.passthrough(letter, False)
-      letter = self.rotor3.passthrough(letter, False)
-      letter = self.rotor2.passthrough(letter, False)
-      letter = self.rotor1.passthrough(letter, False)
+    letter = ord(letter)-97
+    
+    print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
+    self.rotate_rotors()
+    if (self.plugboard != None):
+      letter = self.plugboard.passthrough(letter)
+    letter = self.rotor1.passthrough(letter, True)
+    letter = self.rotor2.passthrough(letter, True)
+    letter = self.rotor3.passthrough(letter, True)
+    letter = self.rotor4.passthrough(letter, True)
+    letter = self.reflector.passthrough(letter)
+    letter = self.rotor4.passthrough(letter, False)
+    letter = self.rotor3.passthrough(letter, False)
+    letter = self.rotor2.passthrough(letter, False)
+    letter = self.rotor1.passthrough(letter, False)
 
-      if (self.plugboard != None):
-        letter = self.plugboard.passthrough(letter)
-      print()
-      print(chr(letter+97))
-      
-      
+    if (self.plugboard != None):
+      letter = self.plugboard.passthrough(letter)
+    print()
+    print(chr(letter+97))
 
   def rotate_rotors(self):
     self.rotor1.rotate()
