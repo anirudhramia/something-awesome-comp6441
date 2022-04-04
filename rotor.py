@@ -1,14 +1,14 @@
 from collections import deque
 
 class Rotor:
-  def __init__(self, rotor_number, position):
-    self.position = position
-    self.notch_position = [26,26]
-    self.notch_number = 0 # Used for rotors VI, VII and VIII which have two notches
+  def __init__(self, rotor_number, position, ring_setting):
+    self.position = 1
+    self.notch_position = [26,26] # Used for rotors VI, VII and VIII which have two notches
+    self.notch_number = 0 
     self.notch_engaged = False
     self.connections = []
     self.rotor_type = ""
-    self.configure_rotor(rotor_number) # Configure the input/output connections and turnover point for the rotor based on rotor number
+    self.configure_rotor(rotor_number, position, ring_setting) # Configure the input/output connections and turnover point for the rotor based on rotor number
 
 
   def passthrough(self, letter, forward):
@@ -45,17 +45,18 @@ class Rotor:
     return self.position
 
   def set_position(self, new_position):
-    if(new_position > 0 and new_position < 27):
-      while(self.position != new_position):
-        self.rotate()
+    if (new_position != self.position):
+      if(new_position > 0 and new_position < 27):
+        while(self.position != new_position):
+          self.rotate()
 
   def set_alphabet_ring(self, new_ring_position):
     if(new_ring_position >= 0 and new_ring_position < 26):
       for wire in self.connections:
-        wire[0] = wire[0]+1
+        wire[0] = wire[0]+new_ring_position-1
         if(wire[0] > 25):
           wire[0]=wire[0]-26
-        wire[1] = wire[1]+new_ring_position
+        wire[1] = wire[1]+new_ring_position-1
         if(wire[1] > 25):
           wire[1] = wire[1]-26
     first = self.connections[0][0]
@@ -69,6 +70,9 @@ class Rotor:
 
   def get_notch_position(self):
     return self.notch_position[self.notch_number]
+
+  def get_rotor_type(self):
+    return self.rotor_type
   
   def change_notch(self):
     # This logic switches between the two returned notch values
@@ -87,11 +91,12 @@ class Rotor:
   def get_notch_engaged(self):
     return self.notch_engaged
 
-  def configure_rotor(self, rotor_number):
+  def configure_rotor(self, rotor_number, position, ring_position):
+    self.position = 1
     if (rotor_number == 1):
       self.rotor_type = "I"
       self.connections = [[0,4], [1,10], [2,12], [3,5], [4,11], [5,6], [6,3], [7,16], [8,21], [9,25], [10,13], [11,19], [12,14],
-       [13,22], [14,24], [15,7], [16,23], [17,20], [18,18], [19,15], [20,0], [21,8], [22,1], [23,17], [24,2], [25,9]]
+      [13,22], [14,24], [15,7], [16,23], [17,20], [18,18], [19,15], [20,0], [21,8], [22,1], [23,17], [24,2], [25,9]]
       self.notch_position = [17,17]
 
     elif (rotor_number == 2):
@@ -103,7 +108,7 @@ class Rotor:
     elif (rotor_number == 3):
       self.rotor_type = "III"
       self.connections = [[0,1], [1,3], [2,5], [3,7], [4,9], [5,11], [6,2], [7,15], [8,17], [9,19], [10,23], [11,21], [12,25],
-       [13,13], [14,24], [15,4], [16,8], [17,22], [18,6], [19,0], [20,10], [21,12], [22,20], [23,18], [24,16], [25,14]]
+      [13,13], [14,24], [15,4], [16,8], [17,22], [18,6], [19,0], [20,10], [21,12], [22,20], [23,18], [24,16], [25,14]]
       self.notch_position = [22,22]
 
     elif (rotor_number == 4):
@@ -115,13 +120,13 @@ class Rotor:
     elif (rotor_number == 5):
       self.rotor_type = "V"
       self.connections = [[0,21], [1,25], [2,1], [3,17], [4,6], [5,8], [6,19], [7,24], [8,20], [9,15], [10,18], [11,3], [12,13],
-       [13,7], [14,11], [15,23], [16,0], [17,22], [18,12], [19,9], [20,16], [21,14], [22,5], [23,4], [24,2], [25,10]]
+      [13,7], [14,11], [15,23], [16,0], [17,22], [18,12], [19,9], [20,16], [21,14], [22,5], [23,4], [24,2], [25,10]]
       self.notch_position = [26,26]
 
     elif (rotor_number == 6):
       self.rotor_type = "VI"
       self.connections = [[0,9], [1,15], [2,6], [3,21], [4,14], [5,20], [6,12], [7,5], [8,24], [9,16], [10,1], [11,4], [12,13],
-       [13,7], [14,25], [15,17], [16,3], [17,10], [18,0], [19,18], [20,23], [21,11], [22,8], [23,2], [24,19], [25,22]]
+      [13,7], [14,25], [15,17], [16,3], [17,10], [18,0], [19,18], [20,23], [21,11], [22,8], [23,2], [24,19], [25,22]]
       self.notch_position = [13,26]
 
     elif (rotor_number == 7):
@@ -140,6 +145,7 @@ class Rotor:
       self.rotor_type = "Beta"
       self.connections = [[0,11], [1,4], [2,24], [3,9], [4,21], [5,2], [6,13], [7,8], [8,23], [9,22], [10,15], [11,1], [12,16], 
       [13,12], [14,3], [15,17], [16,19], [17,0], [18,10], [19,25], [20,6], [21,5], [22,20], [23,7], [24,14], [25,18]]
+      self.notch_position = [26,26]
 
     elif(rotor_number == 17): # Gamma Rotor (Used specifically in M4 Engima and did not rotate)
       self.rotor_type = "Gamma"
@@ -152,4 +158,6 @@ class Rotor:
       self.connections =  [[0,0], [1,1], [2,2], [3,3], [4,4], [5,5], [6,6], [7,7], [8,8], [9,9], [10,10], [11,11], [12,12], 
       [13,13], [14,14], [15,15], [16,16], [17,17], [18,18], [19,19], [20,20], [21,21], [22,22], [23,23], [24,24], [25,25]]
       self.notch_position = [26,26]
-      
+
+    self.set_position(position)
+    self.set_alphabet_ring(ring_position)

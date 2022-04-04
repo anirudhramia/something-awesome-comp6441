@@ -4,10 +4,10 @@ from reflector import Reflector
 from plugboard import Plugboard
 class EnigmaMachine:
   def __init__(self, config):
-    self.rotor1 = Rotor(config.rotor1_number, config.rotor1_position) # Fast position: Rotates every keystroke
-    self.rotor2 = Rotor(config.rotor2_number, config.rotor2_position) # Middle
-    self.rotor3 = Rotor(config.rotor3_number, config.rotor3_position) # Slow Position
-    self.rotor4 = Rotor(config.rotor4_number, config.rotor4_position)
+    self.rotor1 = Rotor(config.rotor1_number, config.rotor1_position, config.rotor1_ring_setting) # Fast position: Rotates every keystroke
+    self.rotor2 = Rotor(config.rotor2_number, config.rotor2_position, config.rotor2_ring_setting) # Middle
+    self.rotor3 = Rotor(config.rotor3_number, config.rotor3_position, config.rotor3_ring_setting) # Slow Position
+    self.rotor4 = Rotor(config.rotor4_number, config.rotor4_position, config.rotor4_ring_setting)
 
     self.rotated = [False, False, False]
 
@@ -21,8 +21,10 @@ class EnigmaMachine:
     
     #print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
     self.rotate_rotors()
+    #print(chr(letter+97))
     letter = self.plugboard.passthrough(letter)
     letter = self.rotor1.passthrough(letter, True)
+    #print(chr(letter+97))
     letter = self.rotor2.passthrough(letter, True)
     letter = self.rotor3.passthrough(letter, True)
     letter = self.rotor4.passthrough(letter, True)
@@ -32,6 +34,7 @@ class EnigmaMachine:
     letter = self.rotor2.passthrough(letter, False)
     letter = self.rotor1.passthrough(letter, False)
     letter = self.plugboard.passthrough(letter)
+    #print(chr(letter+97))
     return letter
 
   def rotate_rotors(self):
@@ -72,19 +75,23 @@ class EnigmaMachine:
     letters.append(self.rotor2.get_current_letter()+97)
     letters.append(self.rotor1.get_current_letter()+97)
     return letters
+  
+  def get_rotor_types(self):
+    types = []
+    types.append(self.rotor4.get_rotor_type())
+    types.append(self.rotor3.get_rotor_type())
+    types.append(self.rotor2.get_rotor_type())
+    types.append(self.rotor1.get_rotor_type())
+    return types
 
   def reset(self):
-    self.rotor1.set_position(self.original_config.rotor1_position)
-    self.rotor1.set_alphabet_ring(self.original_config.rotor1_ring_setting)
+    self.rotor1.configure_rotor(self.original_config.rotor1_number, self.original_config.rotor1_position, self.original_config.rotor1_ring_setting)
+    
+    self.rotor2.configure_rotor(self.original_config.rotor2_number, self.original_config.rotor2_position, self.original_config.rotor2_ring_setting)
 
-    self.rotor2.set_position(self.original_config.rotor2_position)
-    self.rotor2.set_alphabet_ring(self.original_config.rotor2_ring_setting)
+    self.rotor3.configure_rotor(self.original_config.rotor3_number, self.original_config.rotor3_position, self.original_config.rotor3_ring_setting)
 
-    self.rotor3.set_position(self.original_config.rotor3_position)
-    self.rotor3.set_alphabet_ring(self.original_config.rotor3_ring_setting)
-
-    self.rotor4.set_position(self.original_config.rotor4_position)
-    self.rotor4.set_alphabet_ring(self.original_config.rotor4_ring_setting)
+    self.rotor4.configure_rotor(self.original_config.rotor4_number, self.original_config.rotor4_position, self.original_config.rotor4_ring_setting)
 
     self.plugboard.reset(self.original_config.plugboard)
 
