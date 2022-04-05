@@ -53,7 +53,7 @@ class Screen:
       [2,1,1],
       [3,1,1],
       [16,1,1],
-      0,
+      32,
       []
     )
     self.enigma = EnigmaMachine(config)
@@ -81,191 +81,221 @@ class Screen:
 
     ### Main
     # Configure Button
-    self.main_buttons.append(Button(self.canvas, text="Configure Machine", command=self.draw_configure_screen))
+    self.main_buttons.append(Button(self.canvas, text="Rotor Settings", font='sans',activebackground='#6b6b6b', bg='#bfbfbf', command=self.draw_rotor_screen))
+
+    # Plugboards Config button
+    self.main_buttons.append(Button(self.canvas, text="Plugboard Settings", font='sans',activebackground='#6b6b6b', bg='#bfbfbf', command=self.draw_plugboard_screen))
 
     # Reset Button
-    self.main_buttons.append(Button(self.canvas, text="Reset", command=self.reset))
+    self.main_buttons.append(Button(self.canvas, text="Reset", font='sans', activebackground='#6b6b6b', bg='#bfbfbf', command=self.reset))
 
     ### Config
-    self.chosen_rotors=[config.rotor4_number,config.rotor3_number, config.rotor2_number, config.rotor1_number]
+    self.chosen_rotors=[config.reflector, config.rotor4_number,config.rotor3_number, config.rotor2_number, config.rotor1_number]
     self.rotor_positions=[config.rotor4_position,config.rotor3_position, config.rotor2_position, config.rotor1_position]
     self.rotor_ring_settings=[config.rotor4_ring_setting,config.rotor3_ring_setting, config.rotor2_ring_setting, config.rotor1_ring_setting]
-    self.rotor_options_circles=[]
-    self.rotors_options=[0,0,0,0,0,0,0,0]
-    self.fourth_rotor=self.chosen_rotors[0]
+    self.plugboard_settings=config.plugboard
+
+    # Rotor settings
+    self.rotor_options = []
+    self.rotor_position_options = []
+    self.rotor_ring_setting_options = []
+    self.rotor_options_text=[]
+    self.position_options_text=[]
+    self.ring_setting_options_text=[]
+    self.types=['I','II','III','IV','V','VI','VII','VIII','\u03B2','\u03B3','UKW-B', 'UKW-C']
+
+    # Arrows for rotor settings
+    self.rotor_arrows_up=[]
+    self.rotor_arrows_down=[]
+    self.position_arrows_up=[]
+    self.position_arrows_down=[]
+    self.ring_setting_arrows_up=[]
+    self.ring_setting_arrows_down=[]
 
     # Save and return to enigma screen
-    self.config_buttons.append(Button(self.canvas, text='Save', command=self.update_enigma))
+    self.config_buttons.append(Button(self.canvas, text='Save', font='sans', activebackground='#6b6b6b', bg='#bfbfbf', command=self.update_rotors))
     # Return to Enigma screen without saving config
-    self.config_buttons.append(Button(self.canvas, text="Cancel", command=self.draw_enigma))
+    self.config_buttons.append(Button(self.canvas, text="Cancel", font='sans', activebackground='#6b6b6b', bg='#bfbfbf', command=self.draw_enigma))
+
+    ### Plugboard
+
 
     # Reset to default view
     self.draw_enigma()
 
 # Screen change functions
-  # Screen with configure options
-  def draw_configure_screen(self):
+  # Screen with rotor options
+  def draw_rotor_screen(self):
     # Clear
     self.canvas.delete('all')
     self.switch_to('config')
 
     # Coords
-    r_x = 100
-    r_y = 100
+    r_x = 200
+    r_y = 150
 
     # Rotor data
-    self.rotor_options=[0,0,0,0,0,0,0,0]
-    types=['I','II','III','IV','V','VI','VII','VIII','\u03B2','\u03B3']
-    for n in self.chosen_rotors:
-      if n < 9:
-        self.rotor_options[n-1] = 1
-    self.fourth_rotor = self.chosen_rotors[0]
+    text=['Reflector', 'Rotor 1', 'Rotor 2','Rotor 3', 'Rotor 4']
+    self.rotor_options=[]
+    self.rotor_position_options = []
+    self.rotor_ring_setting_options = []
+    for i,r in enumerate(self.chosen_rotors):
+      if r <= 8:
+        self.rotor_options.append(r-1)
+        if i > 0:
+          self.rotor_position_options.append(self.rotor_positions[i-1])
+          self.rotor_ring_setting_options.append(self.rotor_ring_settings[i-1])
+      elif r > 8 and r < 32:
+        self.rotor_options.append(r-8)
+        if i > 0:
+          self.rotor_position_options.append(self.rotor_positions[i-1])
+          self.rotor_ring_setting_options.append(self.rotor_ring_settings[i-1])
+      else:
+        self.rotor_options.append(r-22)
+    
+    self.rotor_options_text=[]
+    self.rotor_arrows_up=[]
+    self.rotor_arrows_down=[]
+    self.position_options_text=[]
+    self.position_arrows_up=[]
+    self.position_arrows_down=[]
+    self.ring_setting_options_text=[]
+    self.ring_setting_arrows_up=[]
+    self.ring_setting_arrows_down=[]
+
+    # Option Headings
+    self.canvas.create_text(80,r_y,fill="white", font="sans 20",text='Rotors:',tags='rotor_option')
+    self.canvas.create_text(180,r_y+225,fill="white", font="sans 20",text='Position:',tags='rotor_option')
+    self.canvas.create_text(150,r_y+450,fill="white", font="sans 20",text='Ring Setting:',tags='rotor_option')
 
     # Rotors
-    self.rotor_options_circles=[]
-    self.canvas.create_text(r_x,r_y,fill="white", font="sans 20",text='Rotors: ',tags='rotor_option')
-    for i, type in enumerate(types):
-      x0 = r_x + 100 + i*65 - 25
-      x1 = r_x + 100 + i*65 + 25
-      y0 = r_y-25
-      y1 = r_y+25
-      if i > 7:
-        x0 = x0+25
-        x1 = x1+25
-      button = self.canvas.create_oval(x0, y0, x1, y1,fill='#9c9c9c',outline='#a6a6a6',width=5,tags=('rotor_option',type))
-      self.canvas.tag_bind(button,'<Button-1>', self.rotor_select)
-      self.canvas.tag_bind(button, '<Enter>', self.on_rotor_enter)
-      self.canvas.tag_bind(button, '<Leave>', self.on_rotor_leave)
-      self.rotor_options_circles.append(button)
-      text = self.canvas.create_text(x0+25,y0+25,fill='white', font="sans 15", text=type, tags='rotor_option')
-      self.canvas.tag_bind(text, '<Button-1>', self.rotor_select)
-      self.canvas.tag_bind(text, '<Enter>', self.on_rotor_enter)
-      self.canvas.tag_bind(button, '<Leave>', self.on_rotor_leave)
+    for i, type in enumerate(self.rotor_options):
+      radius = 40
+      gap = 150
+      y_gap = 225
+      x0 = r_x + i*gap - radius
+      x1 = r_x + i*gap + radius
+      y0 = r_y-radius
+      y1 = r_y+radius
 
-    self.draw_rotor_options()
+      if i > 0:
+        font = "sans 25"
+      else:
+        font = "sans 15"
+
+      # Circles with rotor numbers
+      self.canvas.create_oval(x0, y0, x1, y1,fill='#9c9c9c',outline='#a6a6a6',width=5,tags=('rotor_option',type))
+
+      if i > 0:
+        # Squares for position
+        self.canvas.create_polygon([x0, y0+y_gap, x1, y0+y_gap, x1, y1+y_gap, x0, y1+y_gap],fill='#9c9c9c',outline='#a6a6a6',width=5,tags=('rotor_option',type))
+
+        # Squares for ring setting
+        self.canvas.create_polygon([x0, y0+(y_gap*2), x1, y0+(y_gap*2), x1, y1+(y_gap*2), x0, y1+(y_gap*2)],fill='#9c9c9c',outline='#a6a6a6',width=5,tags=('rotor_option',type))
+
+      # Headings
+      self.canvas.create_text(x0+radius,r_y-125,fill="white", font="sans 10",text=text[i],tags='rotor_option')
+
+      # Related text
+      rotor_text = self.canvas.create_text(x0+radius,y0+radius,fill='white', font=font, text=self.types[type], tags='rotor_option')
+      self.rotor_options_text.append(rotor_text)
+      
+      if i > 0:
+        position_text= self.canvas.create_text(x0+radius,y0+radius+y_gap,fill='white', font=font, text=str(self.rotor_position_options[i-1]), tags='rotor_option')
+        self.position_options_text.append(position_text)
+
+        ring_setting_text= self.canvas.create_text(x0+radius,y0+radius+y_gap+y_gap,fill='white', font=font, text=str(self.rotor_ring_setting_options[i-1]), tags='rotor_option')
+        self.ring_setting_options_text.append(ring_setting_text)
+      
+
+      # Arrows to change rotors
+      arrow = self.canvas.create_polygon([x0+radius, r_y-90, x0+radius/2, r_y-65,x0+radius*1.5,r_y-65],fill='#700000',outline='#700000', width=5,tags='rotor_option')
+      self.rotor_arrows_up.append(arrow)
+      self.canvas.tag_bind(arrow, '<Button-1>', lambda e, i=i, direction=1: self.on_rotor_button_press(i,direction))
+      self.canvas.tag_bind(arrow, '<Enter>', lambda e,i=i, arrows=self.rotor_arrows_up: self.on_button_enter(i, arrows))
+      self.canvas.tag_bind(arrow, '<Leave>', lambda e,i=i, arrows=self.rotor_arrows_up: self.on_button_leave(i, arrows))
+
+      arrow = self.canvas.create_polygon([x0+radius, r_y+90, x0+radius/2, r_y+65,x0+radius*1.5,r_y+65],fill='#700000',outline='#700000', width=5,tags='rotor_option')
+      self.rotor_arrows_down.append(arrow)
+      self.canvas.tag_bind(arrow, '<Button-1>', lambda e,i=i, direction=-1: self.on_rotor_button_press(i,direction))
+      self.canvas.tag_bind(arrow, '<Enter>', lambda e,i=i, arrows=self.rotor_arrows_down: self.on_button_enter(i, arrows))
+      self.canvas.tag_bind(arrow, '<Leave>', lambda e,i=i, arrows=self.rotor_arrows_down: self.on_button_leave(i, arrows))
+
+      if i > 0:
+        # Arrows to change position
+        arrow = self.canvas.create_polygon([x0+radius, r_y+y_gap-90, x0+radius/2, r_y+y_gap-65,x0+radius*1.5,r_y+y_gap-65],fill='#700000',outline='#700000', width=5,tags='rotor_option')
+        self.position_arrows_up.append(arrow)
+        self.canvas.tag_bind(arrow, '<Button-1>', lambda e, i=i-1, direction=1: self.on_position_button_press(i,direction))
+        self.canvas.tag_bind(arrow, '<Enter>', lambda e,i=i-1, arrows=self.position_arrows_up: self.on_button_enter(i, arrows))
+        self.canvas.tag_bind(arrow, '<Leave>', lambda e,i=i-1, arrows=self.position_arrows_up: self.on_button_leave(i, arrows))
+
+        arrow = self.canvas.create_polygon([x0+radius, r_y+y_gap+90, x0+radius/2, r_y+y_gap+65,x0+radius*1.5,r_y+y_gap+65],fill='#700000',outline='#700000', width=5,tags='rotor_option')
+        self.position_arrows_down.append(arrow)
+        self.canvas.tag_bind(arrow, '<Button-1>', lambda e,i=i-1, direction=-1: self.on_position_button_press(i,direction))
+        self.canvas.tag_bind(arrow, '<Enter>', lambda e,i=i-1, arrows=self.position_arrows_down: self.on_button_enter(i, arrows))
+        self.canvas.tag_bind(arrow, '<Leave>', lambda e,i=i-1, arrows=self.position_arrows_down: self.on_button_leave(i, arrows))
+
+        # Arrows to change ring_setting
+        arrow = self.canvas.create_polygon([x0+radius, r_y+y_gap+y_gap-90, x0+radius/2, r_y+y_gap+y_gap-65,x0+radius*1.5,r_y+y_gap+y_gap-65],fill='#700000',outline='#700000', width=5,tags='rotor_option')
+        self.ring_setting_arrows_up.append(arrow)
+        self.canvas.tag_bind(arrow, '<Button-1>', lambda e, i=i-1, direction=1: self.on_ring_setting_button_press(i,direction))
+        self.canvas.tag_bind(arrow, '<Enter>', lambda e,i=i-1, arrows=self.ring_setting_arrows_up: self.on_button_enter(i, arrows))
+        self.canvas.tag_bind(arrow, '<Leave>', lambda e,i=i-1, arrows=self.ring_setting_arrows_up: self.on_button_leave(i, arrows))
+
+        arrow = self.canvas.create_polygon([x0+radius, r_y+y_gap+y_gap+90, x0+radius/2, r_y+y_gap+y_gap+65,x0+radius*1.5,r_y+y_gap+y_gap+65],fill='#700000',outline='#700000', width=5,tags='rotor_option')
+        self.ring_setting_arrows_down.append(arrow)
+        self.canvas.tag_bind(arrow, '<Button-1>', lambda e,i=i-1, direction=-1: self.on_ring_setting_button_press(i,direction))
+        self.canvas.tag_bind(arrow, '<Enter>', lambda e,i=i-1, arrows=self.ring_setting_arrows_down: self.on_button_enter(i, arrows))
+        self.canvas.tag_bind(arrow, '<Leave>', lambda e,i=i-1, arrows=self.ring_setting_arrows_down: self.on_button_leave(i, arrows))
 
 
-  def draw_rotor_options(self):
-    for i, rotor in enumerate(self.rotor_options):
-      if rotor == 1:
-        self.canvas.itemconfig(self.rotor_options_circles[i], fill='#ffb05c', outline='#ffc382')
 
-    self.canvas.itemconfig(self.rotor_options_circles[self.fourth_rotor-8], fill='#ffb05c', outline='#ffc382')
+  def on_rotor_button_press(self, i, direction):
+    if (i >= 2 and i <=4):
+      self.rotor_options[i] = self.rotor_options[i] + direction
+      if (self.rotor_options[i] > 7):
+        self.rotor_options[i] = 0
+      if(self.rotor_options[i] < 0):
+        self.rotor_options[i] = 7
+    elif (i == 1):
+      if (self.rotor_options[i] == 8):
+        self.rotor_options[i] = 9
+      else: 
+        self.rotor_options[i] = 8
+    elif (i == 0):
+      if (self.rotor_options[i] == 10):
+        self.rotor_options[i] = 11
+      else: 
+        self.rotor_options[i] = 10
+    else:
+      print("Something Wrong!")
+    self.canvas.itemconfig(self.rotor_options_text[i], text=self.types[self.rotor_options[i]])
 
-  def rotor_select(self, e):
-    if e.x > 170 and e.x < 230:
-      if (self.rotor_options[0] != 1):
-        self.rotor_options[0] = 1
-      else:
-        self.rotor_options[0] = 0
-    elif e.x > 235 and e.x < 295:
-      if (self.rotor_options[1] != 1):
-        self.rotor_options[1] = 1
-      else:
-        self.rotor_options[1] = 0
-    elif e.x > 300 and e.x < 360:
-      if (self.rotor_options[2] != 1):
-        self.rotor_options[2] = 1
-      else:
-        self.rotor_options[2] = 0
-    elif e.x > 365 and e.x < 425:
-      if (self.rotor_options[3] != 1):
-        self.rotor_options[3] = 1
-      else:
-        self.rotor_options[3] = 0
-    elif e.x > 430 and e.x < 490:
-      if (self.rotor_options[4] != 1):
-        self.rotor_options[4] = 1
-      else:
-        self.rotor_options[4] = 0
-    elif e.x > 495 and e.x < 555:
-      if (self.rotor_options[5] != 1):
-        self.rotor_options[5] = 1
-      else:
-        self.rotor_options[5] = 0
-    elif e.x > 560 and e.x < 620:
-      if (self.rotor_options[6] != 1):
-        self.rotor_options[6] = 1
-      else:
-        self.rotor_options[6] = 0
-    elif e.x > 625 and e.x < 680:
-      if (self.rotor_options[7] != 1):
-        self.rotor_options[7] = 1
-      else:
-        self.rotor_options[7] = 0
-    elif e.x > 715 and e.x < 775:
-      if (self.fourth_rotor != 16):
-        self.fourth_rotor = 16
-    elif e.x > 780 and e.x < 840:
-      if (self.fourth_rotor != 17):
-        self.fourth_rotor = 17
+  def on_position_button_press(self, i, direction):
+    self.rotor_position_options[i] = self.rotor_position_options[i] + direction
+    if (self.rotor_position_options[i] > 26):
+      self.rotor_position_options[i] = 1
+    elif (self.rotor_position_options[i] < 1):
+      self.rotor_position_options[i] = 26
+    self.canvas.itemconfig(self.position_options_text[i], text=self.rotor_position_options[i])
 
-    self.draw_rotor_options()
+  def on_ring_setting_button_press(self, i, direction):
+    self.rotor_ring_setting_options[i] = self.rotor_ring_setting_options[i] + direction
+    if (self.rotor_ring_setting_options[i] > 26):
+      self.rotor_ring_setting_options[i] = 1
+    elif (self.rotor_ring_setting_options[i] < 1):
+      self.rotor_ring_setting_options[i] = 26
+    self.canvas.itemconfig(self.ring_setting_options_text[i], text=self.rotor_ring_setting_options[i])
 
-  def on_rotor_leave(self, e):
-    if(self.rotor_options[0] == 1):
-      self.canvas.itemconfig('I',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('I',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.rotor_options[1] == 1):
-      self.canvas.itemconfig('II',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('II',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.rotor_options[2] == 1):
-      self.canvas.itemconfig('III',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('III',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.rotor_options[3] == 1):
-      self.canvas.itemconfig('IV',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('IV',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.rotor_options[4] == 1):
-      self.canvas.itemconfig('V',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('V',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.rotor_options[5] == 1):
-      self.canvas.itemconfig('VI',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('VI',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.rotor_options[6] == 1):
-      self.canvas.itemconfig('VII',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('VII',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.rotor_options[7] == 1):
-      self.canvas.itemconfig('VIII',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('VIII',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.fourth_rotor == 16):
-      self.canvas.itemconfig('\u03B2',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('\u03B2',fill='#9c9c9c',outline='#a6a6a6')
-    if(self.fourth_rotor == 17):
-      self.canvas.itemconfig('\u03B3',fill='#ffb05c', outline='#ffc382')
-    else:
-      self.canvas.itemconfig('\u03B3',fill='#9c9c9c',outline='#a6a6a6')
+  def on_button_enter(self, i, arrows):
+    self.canvas.itemconfig(arrows[i], fill='#960000', outline='#960000')
 
-  def on_rotor_enter(self, e):
-    if e.x > 170 and e.x < 230:
-      self.canvas.itemconfig('I',fill='#ff9582', outline='#ff7259')
-    elif e.x > 235 and e.x < 295:
-      self.canvas.itemconfig('II',fill='#ff9582', outline='#ff7259')
-    elif e.x > 300 and e.x < 360:
-      self.canvas.itemconfig('III',fill='#ff9582', outline='#ff7259')
-    elif e.x > 365 and e.x < 425:
-      self.canvas.itemconfig('IV',fill='#ff9582', outline='#ff7259')
-    elif e.x > 430 and e.x < 490:
-      self.canvas.itemconfig('V',fill='#ff9582', outline='#ff7259')
-    elif e.x > 495 and e.x < 555:
-      self.canvas.itemconfig('VI',fill='#ff9582', outline='#ff7259')
-    elif e.x > 560 and e.x < 620:
-      self.canvas.itemconfig('VII',fill='#ff9582', outline='#ff7259')
-    elif e.x > 625 and e.x < 680:
-      self.canvas.itemconfig('VIII',fill='#ff9582', outline='#ff7259')
-    elif e.x > 715 and e.x < 775:
-      self.canvas.itemconfig('\u03B2',fill='#ff9582', outline='#ff7259')
-    elif e.x > 780 and e.x < 840:
-      self.canvas.itemconfig('\u03B3',fill='#ff9582', outline='#ff7259')
-    
+  def on_button_leave(self, i,arrows):
+    self.canvas.itemconfig(arrows[i], fill='#700000', outline='#700000')
+
+  # Screen with plugboard settings
+  def draw_plugboard_screen(self):
+    print('Plugboard screen')
 
   # Screen with enigma machine
   def draw_enigma(self):
@@ -274,10 +304,11 @@ class Screen:
     self.switch_to('main')
 
     # Coords
-    r1_x = 140
-    r2_x = 290
-    r3_x = 440
-    r4_x = 590
+    r0_x = 60
+    r1_x = 190
+    r2_x = 340
+    r3_x = 490
+    r4_x = 640
     y = 150
 
     # Draw Keyboard
@@ -293,10 +324,13 @@ class Screen:
 
     # Text
     text = self.enigma.get_rotor_types()
-    self.canvas.create_text(r1_x, y-120,fill='#121212',font="sans 20 bold",text=text[0],tags='rotor')
-    self.canvas.create_text(r2_x, y-120,fill='#121212',font="sans 20 bold",text=text[1],tags='rotor')
-    self.canvas.create_text(r3_x, y-120,fill='#121212',font="sans 20 bold",text=text[2],tags='rotor')
-    self.canvas.create_text(r4_x, y-120,fill='#121212',font="sans 20 bold",text=text[3],tags='rotor')
+    reflector = self.enigma.get_reflector()
+    self.canvas.create_text(r0_x, y-30,fill='white',font="sans 15 bold",text='Reflector:',tags='rotor')
+    self.canvas.create_text(r0_x, y,fill='white',font="sans 20 bold",text=reflector,tags='rotor')
+    self.canvas.create_text(r1_x, y-120,fill='white',font="sans 20 bold",text=text[0],tags='rotor')
+    self.canvas.create_text(r2_x, y-120,fill='white',font="sans 20 bold",text=text[1],tags='rotor')
+    self.canvas.create_text(r3_x, y-120,fill='white',font="sans 20 bold",text=text[2],tags='rotor')
+    self.canvas.create_text(r4_x, y-120,fill='white',font="sans 20 bold",text=text[3],tags='rotor')
 
     # Draw bolts
     self.canvas.create_oval(r1_x-10, y-95, r1_x+10, y-75,fill='#633803',width=0,tags='rotor')
@@ -403,7 +437,9 @@ class Screen:
   # Light up lampboard/keyboard
   def light_keyboard(self, key):
     self.canvas.itemconfig(self.keyboard[key], fill='#f2931a')
-    self.root.after(500, lambda: self.canvas.itemconfig(self.keyboard[key], fill='#fff'))
+    self.root.unbind('<Key>')
+    self.root.after(500, lambda: [self.canvas.itemconfig(self.keyboard[key], fill='#fff'), self.root.bind('<Key>', self.input_letter)])
+
 
 
 # Rotor functions
@@ -420,27 +456,20 @@ class Screen:
     self.draw_enigma()
 
 # Config functions
-  def update_enigma(self):
-    rotors_chosen = 0
-    for r in self.rotor_options:
-      rotors_chosen = rotors_chosen+r
-    if (rotors_chosen != 3):
-      self.canvas.create_text(640,25,fill="white",font="sans 20",text="Please select three rotors between I and VIII", tags='warning_text')
-      self.root.after(5000, lambda: self.canvas.delete('warning_text'))
-    else:
-      config = Config(
-        [3,1,1],
-        [6,1,1],
-        [5,1,1],
-        [17,1,1],
-        1,
-        []
-      )
-      self.chosen_rotors=[config.rotor4_number,config.rotor3_number, config.rotor2_number, config.rotor1_number]
-      self.rotor_positions=[config.rotor4_position,config.rotor3_position, config.rotor2_position, config.rotor1_position]
-      self.rotor_ring_settings=[config.rotor4_ring_setting,config.rotor3_ring_setting, config.rotor2_ring_setting, config.rotor1_ring_setting]
-      self.enigma.new_config(config)
-      self.reset()
+  def update_rotors(self):
+    config = Config(
+      [self.rotor_options[4]+1,self.rotor_position_options[3],self.rotor_ring_setting_options[3]],
+      [self.rotor_options[3]+1,self.rotor_position_options[2],self.rotor_ring_setting_options[2]],
+      [self.rotor_options[2]+1,self.rotor_position_options[1],self.rotor_ring_setting_options[1]],
+      [self.rotor_options[1]+8,self.rotor_position_options[0],self.rotor_ring_setting_options[0]],
+      self.rotor_options[0]+22,
+      self.plugboard_settings
+    )
+    self.chosen_rotors=[config.reflector, config.rotor4_number,config.rotor3_number, config.rotor2_number, config.rotor1_number]
+    self.rotor_positions=[config.rotor4_position,config.rotor3_position, config.rotor2_position, config.rotor1_position]
+    self.rotor_ring_settings=[config.rotor4_ring_setting,config.rotor3_ring_setting, config.rotor2_ring_setting, config.rotor1_ring_setting]
+    self.enigma.new_config(config)
+    self.reset()
 
   def draw_rotor(self):
     print('text')

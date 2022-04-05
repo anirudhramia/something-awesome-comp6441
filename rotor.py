@@ -71,7 +71,7 @@ class Rotor:
   def get_notch_position(self):
     return self.notch_position[self.notch_number]
 
-  def get_rotor_type(self):
+  def get_type(self):
     return self.rotor_type
   
   def change_notch(self):

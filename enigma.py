@@ -78,11 +78,14 @@ class EnigmaMachine:
   
   def get_rotor_types(self):
     types = []
-    types.append(self.rotor4.get_rotor_type())
-    types.append(self.rotor3.get_rotor_type())
-    types.append(self.rotor2.get_rotor_type())
-    types.append(self.rotor1.get_rotor_type())
+    types.append(self.rotor4.get_type())
+    types.append(self.rotor3.get_type())
+    types.append(self.rotor2.get_type())
+    types.append(self.rotor1.get_type())
     return types
+
+  def get_reflector(self):
+    return self.reflector.get_type()
 
   def reset(self):
     self.rotor1.configure_rotor(self.original_config.rotor1_number, self.original_config.rotor1_position, self.original_config.rotor1_ring_setting)
@@ -92,6 +95,8 @@ class EnigmaMachine:
     self.rotor3.configure_rotor(self.original_config.rotor3_number, self.original_config.rotor3_position, self.original_config.rotor3_ring_setting)
 
     self.rotor4.configure_rotor(self.original_config.rotor4_number, self.original_config.rotor4_position, self.original_config.rotor4_ring_setting)
+
+    self.reflector.reset(self.original_config.reflector)
 
     self.plugboard.reset(self.original_config.plugboard)
 
