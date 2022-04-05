@@ -44,10 +44,7 @@ class Screen:
     self.width = width
     self.height = height
     self.current_page = 'main'
-    
-    # self.enigma = EnigmaMachine(0, [16, 3, 2, 1], [])
-#                      Ref, 4, 3, 2, 1
-# number, position, ring_setting
+
     config = Config(
       [1,1,1],
       [2,1,1],
