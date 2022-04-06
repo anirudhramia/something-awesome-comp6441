@@ -75,6 +75,7 @@ class Screen:
     # Setup Buttons
     self.main_buttons = []
     self.config_buttons = []
+    self.plugboard_buttons = []
 
     ### Main
     # Configure Button
@@ -90,7 +91,7 @@ class Screen:
     self.chosen_rotors=[config.reflector, config.rotor4_number,config.rotor3_number, config.rotor2_number, config.rotor1_number]
     self.rotor_positions=[config.rotor4_position,config.rotor3_position, config.rotor2_position, config.rotor1_position]
     self.rotor_ring_settings=[config.rotor4_ring_setting,config.rotor3_ring_setting, config.rotor2_ring_setting, config.rotor1_ring_setting]
-    self.plugboard_settings=config.plugboard
+    
 
     # Rotor settings
     self.rotor_options = []
@@ -112,16 +113,35 @@ class Screen:
     # Save and return to enigma screen
     self.config_buttons.append(Button(self.canvas, text='Save', font='sans', activebackground='#6b6b6b', bg='#bfbfbf', command=self.update_rotors))
     # Return to Enigma screen without saving config
-    self.config_buttons.append(Button(self.canvas, text="Cancel", font='sans', activebackground='#6b6b6b', bg='#bfbfbf', command=self.draw_enigma))
+    cancel = Button(self.canvas, text="Cancel", font='sans', activebackground='#6b6b6b', bg='#bfbfbf', command=self.draw_enigma)
+    self.config_buttons.append(cancel)
 
     ### Plugboard
+    # Save and return to enigma screen
+    self.plugboard_buttons.append(Button(self.canvas, text='Save and Return', font='sans', activebackground='#6b6b6b', bg='#bfbfbf', command=self.update_plugboard))
 
+    # Plugboard settings
+    self.plugboard_settings=config.plugboard
+    self.new_plugboard_settings = []
+    self.plugpoints = []
+    self.plugpoint_pairs = []
+    self.plugpoint_colours=['#292929','#292929','#292929','#292929','#292929',
+                            '#292929','#292929','#292929','#292929','#292929',
+                            '#292929','#292929','#292929','#292929','#292929',
+                            '#292929','#292929','#292929','#292929','#292929',
+                            '#292929','#292929','#292929','#292929','#292929','#292929']
+    self.available_colours=['#ff0000','#ff8800','#ffff00','#00ff00','#0000ff','#6600ff','#ff00ff','#ffffff','#00ffff','#3a7d00','#ffaaff','#2bc3ff','#9eff4a']
+    self.used_colours=[]
+    self.current_plug = ''
 
     # Reset to default view
     self.draw_enigma()
 
 # Screen change functions
-  # Screen with rotor options
+  #############################################
+  # Screen with rotor options                 #
+  #                                           #
+  # ###########################################
   def draw_rotor_screen(self):
     # Clear
     self.canvas.delete('all')
@@ -245,8 +265,6 @@ class Screen:
         self.canvas.tag_bind(arrow, '<Enter>', lambda e,i=i-1, arrows=self.ring_setting_arrows_down: self.on_button_enter(i, arrows))
         self.canvas.tag_bind(arrow, '<Leave>', lambda e,i=i-1, arrows=self.ring_setting_arrows_down: self.on_button_leave(i, arrows))
 
-
-
   def on_rotor_button_press(self, i, direction):
     if (i >= 2 and i <=4):
       self.rotor_options[i] = self.rotor_options[i] + direction
@@ -290,15 +308,125 @@ class Screen:
   def on_button_leave(self, i,arrows):
     self.canvas.itemconfig(arrows[i], fill='#700000', outline='#700000')
 
-  # Screen with plugboard settings
-  def draw_plugboard_screen(self):
-    print('Plugboard screen')
+  #############################################
+  # Screen with plugboard settings            #
+  #                                           #
+  # ###########################################
 
-  # Screen with enigma machine
+  def draw_plugboard_screen(self):
+    self.canvas.delete('all')
+    self.switch_to('plugboard')
+    self.new_plugboard_settings = self.plugboard_settings
+    self.canvas.create_text(300,30,fill='white', font='sans 20', text='Select two letters to connect them')
+    self.canvas.create_text(385,60,fill='white', font='sans 20', text='Click an already created connection to remove it')
+    self.draw_keyboard()
+
+  def draw_plugpoint(self,x,y,r,key):
+    fill_colour=self.plugpoint_colours[ord(key)-97]
+    if fill_colour == '#292929':
+      outline_colour = 'black'
+    else:
+      outline_colour = fill_colour
+    y = y-125
+    x0 = x - r
+    y0 = y - r
+    x1 = x + r
+    y1 = y + r
+
+    y2 = y + 2*r
+    y3 = y + 2* + 2*r
+
+    pad=10
+
+    plug = self.canvas.create_polygon([x0-pad,y0-pad,x1+pad,y0-pad,x1+pad,y3+pad,x0-pad,y3+pad],fill=fill_colour,outline=fill_colour, width=15)
+    self.canvas.tag_bind(plug, '<Button-1>', lambda e, key=key: self.on_plug_select(key))
+
+    upper_plug = self.canvas.create_oval(x0,y0,x1,y1,fill=fill_colour, outline=outline_colour,width=5,tags='plugpoint')
+    self.canvas.tag_bind(upper_plug, '<Button-1>', lambda e, key=key: self.on_plug_select(key))
+
+    lower_plug = self.canvas.create_oval(x0,y2,x1,y3,fill=fill_colour, outline=outline_colour,width=5,tags='plugpoint')
+    self.canvas.tag_bind(lower_plug, '<Button-1>', lambda e, key=key: self.on_plug_select(key))
+    self.plugpoint_pairs.append([upper_plug, lower_plug])
+
+    self.canvas.create_text(x,y-55,fill="white", font="sans 30 bold", text=key.capitalize(),tags='key')
+    return plug
+
+  def on_plug_select(self, key):
+    colour='#292929'
+    key_found = False
+    index_1 = 0
+    index_2 = 0
+    letter_1 = 0
+    letter_2 = 0
+    for i,pair in enumerate(self.new_plugboard_settings):
+      if (pair[0] == ord(key)-97):
+        index_1 = i
+        letter_1 = pair[0]
+        key_found = True
+      elif(pair[1] == ord(key)-97):
+        index_2 = i
+        letter_2 = pair[0]
+        key_found = True
+
+    if(not key_found):
+      if (self.current_plug == key):
+        self.canvas.itemconfig(self.plugpoints[ord(self.current_plug)-97], fill=colour,outline=colour)
+        self.current_plug = ''
+      elif (self.current_plug == ''):
+        self.current_plug = key
+        self.canvas.itemconfig(self.plugpoints[ord(self.current_plug)-97], fill='grey',outline='grey')
+      else:
+        colour = self.available_colours[0]
+
+        self.canvas.itemconfig(self.plugpoints[ord(key)-97], fill=colour,outline=colour)
+        self.canvas.itemconfig(self.plugpoints[ord(self.current_plug)-97], fill=colour,outline=colour)
+        self.canvas.itemconfig(self.plugpoint_pairs[ord(key)-97][0], fill=colour,outline=colour)
+        self.canvas.itemconfig(self.plugpoint_pairs[ord(key)-97][1], fill=colour,outline=colour)
+        self.canvas.itemconfig(self.plugpoint_pairs[ord(self.current_plug)-97][0], fill=colour,outline=colour)
+        self.canvas.itemconfig(self.plugpoint_pairs[ord(self.current_plug)-97][1], fill=colour,outline=colour)
+
+        self.plugpoint_colours[ord(key)-97] = colour
+        self.plugpoint_colours[ord(self.current_plug)-97] = colour
+
+        c = self.available_colours.pop(0)
+        self.used_colours.append(c)
+
+        self.new_plugboard_settings.append([ord(self.current_plug)-97, ord(key)-97])
+        self.new_plugboard_settings.append([ord(key)-97, ord(self.current_plug)-97])
+        self.current_plug = ''
+    else:
+      if(index_1 > index_2):
+        self.new_plugboard_settings.pop(index_1)
+        self.new_plugboard_settings.pop(index_2)
+      else:
+        self.new_plugboard_settings.pop(index_2)
+        self.new_plugboard_settings.pop(index_1)
+      if(self.current_plug != ''):
+        self.canvas.itemconfig(self.plugpoints[ord(self.current_plug)-97], fill=colour,outline=colour)
+        self.current_plug = ''
+      c = self.canvas.itemcget(self.plugpoints[letter_2], 'fill')
+      self.used_colours.remove(c)
+      self.available_colours.append(c)
+      self.canvas.itemconfig(self.plugpoints[letter_1], fill=colour,outline=colour)
+      self.canvas.itemconfig(self.plugpoints[letter_2], fill=colour,outline=colour)
+      self.canvas.itemconfig(self.plugpoint_pairs[letter_1][0], fill=colour,outline='black')
+      self.canvas.itemconfig(self.plugpoint_pairs[letter_1][1], fill=colour,outline='black')
+      self.canvas.itemconfig(self.plugpoint_pairs[letter_2][0], fill=colour,outline='black')
+      self.canvas.itemconfig(self.plugpoint_pairs[letter_2][1], fill=colour,outline='black')
+      self.plugpoint_colours[letter_1] = colour
+      self.plugpoint_colours[letter_2] = colour
+
+
+  #############################################
+  # Screen with enigma machine                #
+  #                                           #
+  # ###########################################
   def draw_enigma(self):
     # Clear
     self.canvas.delete('all')
     self.switch_to('main')
+    self.enigma.reset()
+    self.visible_letters = self.enigma.get_visible_letters()
 
     # Coords
     r0_x = 60
@@ -374,14 +502,23 @@ class Screen:
         button.place(x=x,y=y+index*40)
       for button in self.config_buttons:
         button.place_forget()
+      for button in self.plugboard_buttons:
+        button.place_forget()
     elif (page == 'config'):
       self.current_page = page
       for index, button in enumerate(self.config_buttons):
         button.place(x=x,y=y+index*40)
       for button in self.main_buttons:
         button.place_forget()
+    elif (page =='plugboard'):
+      self.current_page = page
+      for index, button in enumerate(self.plugboard_buttons):
+        button.place(x=x,y=y+index*40)
+      for button in self.main_buttons:
+        button.place_forget()
     else:
       print("Wrong page input")
+
 
 # Key board/lamp board functions
 # set_key_coords: Creates a list of coordinates for each key. Makes it easier to draw over them later
@@ -418,9 +555,14 @@ class Screen:
   # Draw keyboard
   def draw_keyboard(self):
     self.keyboard = []
-    for key in self.key_coords:
-      self.keyboard.append(self.draw_key(key[0],key[1],50,key[2],False))
-      
+    self.plugpoints = []
+    self.plugpoint_pairs = []
+    if(self.current_page =='main'):
+      for key in self.key_coords:
+        self.keyboard.append(self.draw_key(key[0],key[1],50,key[2],False))
+    elif(self.current_page == 'plugboard'):
+      for key in self.key_coords:
+        self.plugpoints.append(self.draw_plugpoint(key[0],key[1],15,key[2]))
 
   # Input letter into enigma machine
   def input_letter(self, e):
@@ -468,8 +610,19 @@ class Screen:
     self.enigma.new_config(config)
     self.reset()
 
-  def draw_rotor(self):
-    print('text')
+# Plugboard functions
+  def update_plugboard(self):
+    config = Config(
+      [self.chosen_rotors[4],self.rotor_positions[3],self.rotor_ring_settings[3]],
+      [self.chosen_rotors[3],self.rotor_positions[2],self.rotor_ring_settings[2]],
+      [self.chosen_rotors[2],self.rotor_positions[1],self.rotor_ring_settings[1]],
+      [self.chosen_rotors[1],self.rotor_positions[0],self.rotor_ring_settings[0]],
+      self.chosen_rotors[0],
+      self.new_plugboard_settings
+    )
+    self.plugboard_settings = self.new_plugboard_settings.copy()
+    self.enigma.new_config(config)
+    self.reset()
 
 # Run screen loop
   def run(self):

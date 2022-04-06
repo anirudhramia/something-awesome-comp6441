@@ -16,15 +16,12 @@ class EnigmaMachine:
     self.original_config = config
 
   def enter_key(self, letter):
-    #print(chr(self.rotor3.get_position()+96)+ " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
     letter = ord(letter)-97
-    
-    #print(chr(self.rotor3.get_position()+96) + " " + chr(self.rotor2.get_position()+96) + " " + chr(self.rotor1.get_position()+96))
+
     self.rotate_rotors()
-    #print(chr(letter+97))
+
     letter = self.plugboard.passthrough(letter)
     letter = self.rotor1.passthrough(letter, True)
-    #print(chr(letter+97))
     letter = self.rotor2.passthrough(letter, True)
     letter = self.rotor3.passthrough(letter, True)
     letter = self.rotor4.passthrough(letter, True)
@@ -34,7 +31,7 @@ class EnigmaMachine:
     letter = self.rotor2.passthrough(letter, False)
     letter = self.rotor1.passthrough(letter, False)
     letter = self.plugboard.passthrough(letter)
-    #print(chr(letter+97))
+
     return letter
 
   def rotate_rotors(self):

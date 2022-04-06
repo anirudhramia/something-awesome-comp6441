@@ -4,7 +4,7 @@ class Rotor:
   def __init__(self, rotor_number, position, ring_setting):
     self.position = 1
     self.notch_position = [26,26] # Used for rotors VI, VII and VIII which have two notches
-    self.notch_number = 0 
+    self.notch_number = 0
     self.notch_engaged = False
     self.connections = []
     self.rotor_type = ""
@@ -51,7 +51,7 @@ class Rotor:
           self.rotate()
 
   def set_alphabet_ring(self, new_ring_position):
-    if(new_ring_position >= 0 and new_ring_position < 26):
+    if(new_ring_position >= 1 and new_ring_position <= 26):
       for wire in self.connections:
         wire[0] = wire[0]+new_ring_position-1
         if(wire[0] > 25):
@@ -84,6 +84,8 @@ class Rotor:
       self.notch_number = 0
     else:
       self.notch_number = 1
+    
+
 
   def set_notch_engaged(self, engage):
     self.notch_engaged = engage
@@ -161,3 +163,7 @@ class Rotor:
 
     self.set_position(position)
     self.set_alphabet_ring(ring_position)
+    if (self.position >= self.notch_position[0]):
+      self.notch_number = 1
+    else:
+      self.notch_number = 0
